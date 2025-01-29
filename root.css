@@ -1,6 +1,7 @@
 #sidebar {
   width: 100vw;
   height: 100vh;
+  justify-content: space-evenly;
 /* TODO  I feel like this could still be simpler (and perhaps less fragile)  */
   .wrapper:has(> img) {
     overflow: hidden;
@@ -14,6 +15,7 @@
     flex-direction: row;
     .wrapper:has(> img) {
       flex-direction: column;
+      height: 100%;
       > * {
         width: unset;
         max-height: 100%;
@@ -26,6 +28,7 @@
     flex-direction: column;
     .wrapper:has(> img) {
       flex-direction: row;
+      width: 100%;
       > * {
         height: unset;
         max-width: 100%;
