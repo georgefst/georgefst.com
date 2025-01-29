@@ -103,6 +103,7 @@ main = shakeArgs shakeOpts do
         cmd_ $ "git switch " <> originalBranch
 
     (outDir </> stylesheet) %> copyFileChanged stylesheet
+    (outDir </> "root.css") %> copyFileChanged "root.css"
 
     (outDir </> stylesheetClay) %> \p -> liftIO $ TL.writeFile p $ Clay.render do
         Clay.star Clay.# Clay.Pseudo.root Clay.? do
@@ -154,7 +155,10 @@ main = shakeArgs shakeOpts do
         let layout = fromMaybe (error $ "unknown Monpad layout: " <> p) $ Map.lookup (takeBaseName p) monpadLayouts
          in copyFileChanged ("./monpad/dhall/" <> layout.path <.> "dhall") p
 
-    (outDir <//> "index.html") *%> \p (pc :! EmptyList) -> do
+    (outDir <//> "index.html") *%> \p (pc :! EmptyList) -> case pc of
+     "" ->
+        liftIO . TL.writeFile p . renderHtml =<< addCommonHtml null =<< addDocHead ["root.css"] "" mempty
+     _ -> do
         let inFile = inDir </> htmlOutToIn (pc </> "index.html")
         need [inFile, outDir </> favicon]
         (contents, localLinks) <- liftIO $ runIOorExplode do
@@ -193,7 +197,7 @@ main = shakeArgs shakeOpts do
                 -- the answer _might_ just be to stop being clever and always compile all HTML files
                 not (p `equalFilePath` (outDir </> "index.html"))
                     || null p' -- avoids trivial recursion
-        liftIO . TL.writeFile p . renderHtml =<< addDocHead "" =<< addCommonHtml noDep contents
+        liftIO . TL.writeFile p . renderHtml =<< addDocHead [] "" =<< addCommonHtml noDep contents
 
 shakeOpts :: ShakeOptions
 shakeOpts =
@@ -286,8 +290,8 @@ htmlInToOut' p = case splitFileName p of
     ("./", "index.md") -> "./"
     (dir, file) -> dir </> dropExtension file
 
-addDocHead :: Text -> Html -> Action Html
-addDocHead title body = do
+addDocHead :: [FilePath] -> Text -> Html -> Action Html
+addDocHead extraStylesheets title body = do
     need $ map (outDir </>) stylesheets
     pure $ H.docTypeHtml do
         H.head do
@@ -295,7 +299,8 @@ addDocHead title body = do
             for_ stylesheets \s -> H.link ! HA.rel "stylesheet" ! HA.href (H.stringValue s)
         H.body body
   where
-    stylesheets = [stylesheet, stylesheetClay]
+    -- NB extras have to come last in order to override
+    stylesheets = [stylesheet, stylesheetClay] <> extraStylesheets
 
 addCommonHtml :: (FilePath -> Bool) -> Html -> Action Html
 addCommonHtml noDep body = do
@@ -303,7 +308,7 @@ addCommonHtml noDep body = do
     need $ links & mapMaybe \(p, _) -> guard (not $ noDep p) $> (outDir </> p </> "index.html")
     pure do
         (H.div ! HA.id "sidebar") do
-            H.img ! HA.src (H.stringValue profilePic)
+            (H.div ! HA.class_ "wrapper") $ H.img ! HA.src (H.stringValue profilePic)
             sequence_ $
                 links <&> \(p, t) ->
                     H.a (H.string t) ! HA.href (H.stringValue ("/" <> p)) ! HA.class_ "button-link"

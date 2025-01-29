@@ -1,0 +1,13 @@
+#sidebar {
+  width: 100vw;
+  .wrapper:has(> img) {
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+#content {
+  padding: 0;
+}

@@ -39,11 +39,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
+  padding: 1.5rem;
   gap: 1.5rem;
-  > img {
-    padding: 2rem;
-    padding-bottom: 1rem;
+  .wrapper:has(> img) {
     width: 10rem;
+    padding: 0.5rem;
+    > * {
+      max-width: 100%;
+    }
   }
 }
 
