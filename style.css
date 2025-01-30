@@ -40,22 +40,13 @@
   box-sizing: border-box;
   padding: 1.5rem;
   gap: 1.5rem;
-}
-
-@media (orientation: landscape) {
-  #sidebar {
+  @media (orientation: landscape) {
     flex-direction: column;
     img {
       width: 10rem;
     }
   }
-}
-
-@media (orientation: portrait) {
-  body {
-    flex-direction: column;
-  }
-  #sidebar {
+  @media (orientation: portrait) {
     img {
       height: 4rem;
     }
@@ -76,6 +67,9 @@ body {
   color: white;
   display: flex;
   overflow: hidden;
+  @media (orientation: portrait) {
+    flex-direction: column;
+  }
 }
 
 iframe {
