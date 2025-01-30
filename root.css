@@ -2,7 +2,7 @@
   width: 100vw;
   height: 100vh;
   justify-content: space-evenly;
-/* TODO  I feel like this could still be simpler (and perhaps less fragile)  */
+  /* TODO  I feel like this could still be simpler (and perhaps less fragile)  */
   .wrapper:has(> img) {
     overflow: hidden;
     display: flex;
