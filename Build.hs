@@ -103,7 +103,6 @@ main = shakeArgs shakeOpts do
         cmd_ $ "git switch " <> originalBranch
 
     (outDir </> stylesheet) %> copyFileChanged stylesheet
-    (outDir </> "root.css") %> copyFileChanged "root.css"
 
     (outDir </> stylesheetClay) %> \p -> liftIO $ TL.writeFile p $ Clay.render do
         Clay.star Clay.# Clay.Pseudo.root Clay.? do
@@ -157,7 +156,7 @@ main = shakeArgs shakeOpts do
 
     (outDir <//> "index.html") *%> \p (pc :! EmptyList) -> case pc of
      "" ->
-        liftIO . TL.writeFile p . renderHtml =<< addDocHead ["root.css"] "" =<< addCommonHtml null mempty
+        liftIO . TL.writeFile p . renderHtml =<< addDocHead [] "" =<< addCommonHtml null mempty
      _ -> do
         let inFile = inDir </> htmlOutToIn (pc </> "index.html")
         need [inFile, outDir </> favicon]
@@ -197,7 +196,7 @@ main = shakeArgs shakeOpts do
                 -- the answer _might_ just be to stop being clever and always compile all HTML files
                 not (p `equalFilePath` (outDir </> "index.html"))
                     || null p' -- avoids trivial recursion
-        liftIO . TL.writeFile p . renderHtml =<< addDocHead [] "" =<< addCommonHtml noDep contents
+        liftIO . TL.writeFile p . renderHtml =<< addDocHead [] "" =<< addCommonHtml noDep (Just contents)
 
 shakeOpts :: ShakeOptions
 shakeOpts =
@@ -302,18 +301,19 @@ addDocHead extraStylesheets title body = do
     -- NB extras have to come last in order to override
     stylesheets = [stylesheet, stylesheetClay] <> extraStylesheets
 
-addCommonHtml :: (FilePath -> Bool) -> Html -> Action Html
+addCommonHtml :: (FilePath -> Bool) -> (Maybe Html) -> Action Html
 addCommonHtml noDep body = do
     need [outDir </> profilePic]
     need $ links & mapMaybe \(p, _) -> guard (not $ noDep p) $> (outDir </> p </> "index.html")
     pure do
-        (H.div ! HA.id "sidebar") do
+        (H.div ! HA.id "sidebar" ! HA.class_ cc) do
             (H.div ! HA.class_ "wrapper") $ H.img ! HA.src (H.stringValue profilePic)
             sequence_ $
                 links <&> \(p, t) ->
                     H.a (H.string t) ! HA.href (H.stringValue ("/" <> p)) ! HA.class_ "button-link"
-        H.div body ! HA.id "content"
+        body & foldMap \b -> H.div b ! HA.id "content"
   where
+    cc = if isNothing body then "no-content" else "content"
     links =
         [ ("", "Home")
         , ("blog", "Blog")
