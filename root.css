@@ -8,10 +8,7 @@
     display: flex;
     justify-content: center;
   }
-}
-
-@media (orientation: landscape) {
-  #sidebar {
+  @media (orientation: landscape) {
     flex-direction: row;
     .wrapper:has(> img) {
       flex-direction: column;
@@ -22,9 +19,7 @@
       }
     }
   }
-}
-@media (orientation: portrait) {
-  #sidebar {
+  @media (orientation: portrait) {
     flex-direction: column;
     .wrapper:has(> img) {
       flex-direction: row;
