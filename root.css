@@ -26,7 +26,7 @@ body {
         flex-direction: row;
         width: 100%;
         > * {
-          height: unset;
+          width: unset;
           max-width: 100%;
         }
       }
