@@ -157,7 +157,7 @@ main = shakeArgs shakeOpts do
 
     (outDir <//> "index.html") *%> \p (pc :! EmptyList) -> case pc of
      "" ->
-        liftIO . TL.writeFile p . renderHtml =<< addCommonHtml null =<< addDocHead ["root.css"] "" mempty
+        liftIO . TL.writeFile p . renderHtml =<< addDocHead ["root.css"] "" =<< addCommonHtml null mempty
      _ -> do
         let inFile = inDir </> htmlOutToIn (pc </> "index.html")
         need [inFile, outDir </> favicon]
