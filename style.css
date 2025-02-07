@@ -140,7 +140,6 @@ body {
   }
   > #blog-links {
     > li {
-      text-align: left;
       font-size: large;
       padding: 0.5rem;
     }
