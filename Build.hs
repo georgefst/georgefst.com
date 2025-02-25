@@ -197,12 +197,20 @@ main = shakeArgs shakeOpts do
             "" -> pure ("", Nothing)
             "posts/" -> do
                 posts <- getDirectoryFiles inDir ["posts" </> "*" <.> "md"]
+                draftPosts <- getDirectoryFiles inDir ["posts" </> "drafts" </> "*" <.> "md"]
                 need $ posts <&> \w -> outDir </> htmlInToOut w
+                need $ draftPosts <&> \w -> outDir </> htmlInToOut w
                 posts' <- for posts \post -> (post,) <$> pandocStuff (inDir </> post)
+                draftPosts' <- for draftPosts \post -> (post,) <$> pandocStuff (inDir </> post)
                 pure . ("Blog",) $ Just do
                     H.h1 "Blog"
-                    (H.ul ! HA.id "blog-links") $ for_ posts' \(post, (title, _, _)) ->
-                        H.li $ H.a (H.text title) ! HA.href (H.stringValue $ "/" </> htmlInToOut' post)
+                    (H.ul ! HA.id "blog-links") do
+                        for_ posts' \(post, (title, _, _)) ->
+                            H.li $ H.a (H.text title) ! HA.href (H.stringValue $ "/" </> htmlInToOut' post)
+                    when (not $ null draftPosts') $ H.h2 "Drafts"
+                    (H.ul ! HA.id "blog-links-draft") do
+                        for_ draftPosts' \(post, (title, _, _)) ->
+                            H.li $ H.a (H.text title) ! HA.href (H.stringValue $ "/" </> htmlInToOut' post)
             _ -> do
                 let inFile = inDir </> htmlOutToIn (pc </> "index.html")
                 need [inFile]
