@@ -139,8 +139,11 @@ body {
     margin-bottom: 0;
   }
   > #blog-links {
+    font-size: large;
+  }
+  > #blog-links,
+  #blog-links-draft {
     > li {
-      font-size: large;
       padding: 0.5rem;
     }
   }
