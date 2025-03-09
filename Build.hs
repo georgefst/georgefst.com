@@ -22,6 +22,7 @@ build-depends:
     shake,
     tagsoup,
     text,
+    time,
 -}
 {-# LANGUAGE GHC2021 #-}
 {-# LANGUAGE BlockArguments #-}
@@ -61,6 +62,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.IO qualified as T
 import Data.Text.Lazy.IO qualified as TL
+import Data.Time
 import Data.Traversable
 import Data.Tuple.Extra
 import Data.Typeable
@@ -74,7 +76,7 @@ import Text.Blaze.Html.Renderer.Text (renderHtml)
 import Text.Blaze.Html5 qualified as H
 import Text.Blaze.Html5.Attributes qualified as HA
 import Text.HTML.TagSoup
-import Text.Pandoc
+import Text.Pandoc hiding (getCurrentTime, getCurrentTimeZone)
 import Text.Pandoc.Walk
 
 main :: IO ()
@@ -200,13 +202,22 @@ main = shakeArgs shakeOpts do
                 draftPosts <- getDirectoryFiles inDir ["posts" </> "drafts" </> "*" <.> "md"]
                 need $ posts <&> \w -> outDir </> htmlInToOut w
                 need $ draftPosts <&> \w -> outDir </> htmlInToOut w
-                posts' <- for posts \post -> (post,) <$> pandocStuff (inDir </> post)
+                posts' <- for posts \post ->
+                    (post,,)
+                        <$> pandocStuff (inDir </> post)
+                        <*> ( maybe "unknown date" (formatTime defaultTimeLocale "%d/%m/%Y" . localDay)
+                                . runReadS
+                                . readSTime True defaultTimeLocale "%a %b %e %H:%M:%S %Y %z"
+                                . fromStdout
+                                <$> command [] "git" ["log", "--diff-filter=A", "--format=%ad", "--", inDir </> post]
+                            )
                 draftPosts' <- for draftPosts \post -> (post,) <$> pandocStuff (inDir </> post)
                 pure . ("Blog",) $ Just do
                     H.h1 "Blog"
                     (H.ul ! HA.id "blog-links") do
-                        for_ posts' \(post, (title, _, _)) ->
-                            H.li $ H.a (H.text title) ! HA.href (H.stringValue $ "/" </> htmlInToOut' post)
+                        for_ posts' \(post, (title, _, _), date) -> H.li do
+                            H.a (H.text title) ! HA.href (H.stringValue $ "/" </> htmlInToOut' post)
+                            H.span $ H.string date
                     when (not $ null draftPosts') $ H.h2 "Drafts"
                     (H.ul ! HA.id "blog-links-draft") do
                         for_ draftPosts' \(post, (title, _, _)) ->
@@ -404,3 +415,8 @@ addSubmoduleOracle = addOracle $ \(Submodule p) ->
         (,)
             <$> (fromStdout <$> command [Cwd p] "git" ["rev-parse", "HEAD"])
             <*> (fromStdout <$> command [Cwd p] "git" ["diff"])
+
+runReadS :: [(a, b)] -> Maybe a
+runReadS = \case
+    [(r, _)] -> Just r
+    _ -> Nothing

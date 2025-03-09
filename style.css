@@ -140,6 +140,10 @@ body {
   }
   > #blog-links {
     font-size: large;
+    > li > *:last-child {
+      float: right;
+      font-size: medium;
+    }
   }
   > #blog-links,
   #blog-links-draft {
