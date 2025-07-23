@@ -401,7 +401,7 @@ adjustHSL ::
     Colour Double
 adjustHSL fh fs fl c = let (h, s, l) = hslView $ toSRGB c in uncurryRGB sRGB $ hsl (fh h) (fs s) (fl l)
 adjustLightness :: (Double -> Double) -> Colour Double -> Colour Double
-adjustLightness f = adjustHSL id id f
+adjustLightness = adjustHSL id id
 lighten :: Double -> Colour Double -> Colour Double
 lighten x = adjustLightness (\l -> l + (1 - l) * x)
 
