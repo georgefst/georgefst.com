@@ -359,7 +359,7 @@ addCommonHtml noDep body = do
         (H.div ! HA.id "sidebar") do
             H.a (H.img ! HA.src (H.stringValue $ "/" </> profilePic)) ! HA.href "/" ! HA.id "home-image"
             for_ links \(p, t) ->
-                    H.a (H.string t) ! HA.href (H.stringValue ("/" <> p)) ! HA.class_ "button-link"
+                H.a (H.string t) ! HA.href (H.stringValue ("/" <> p)) ! HA.class_ "button-link"
         body & foldMap \(b, t) -> H.div (H.div b) ! HA.id "content" ! HA.class_ (H.textValue $ T.dropWhileEnd (== '/') t)
   where
     links =
