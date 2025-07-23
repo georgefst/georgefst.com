@@ -65,7 +65,6 @@ import Data.Text.Lazy.IO qualified as TL
 import Data.Time
 import Data.Traversable
 import Data.Tuple.Extra
-import Data.Typeable
 import Development.Shake
 import NeatInterpolation
 import System.Directory
@@ -407,7 +406,7 @@ lighten :: Double -> Colour Double -> Colour Double
 lighten x = adjustLightness (\l -> l + (1 - l) * x)
 
 -- TODO turn this in to a library?
-newtype Submodule = Submodule FilePath deriving newtype (Eq, Ord, Show, Typeable, NFData, Hashable, Binary)
+newtype Submodule = Submodule FilePath deriving newtype (Eq, Ord, Show, NFData, Hashable, Binary)
 type instance RuleResult Submodule = (String, String)
 addSubmoduleOracle :: Rules (Submodule -> Action (String, String))
 addSubmoduleOracle = addOracle $ \(Submodule p) ->
