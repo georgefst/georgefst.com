@@ -411,9 +411,9 @@ type instance RuleResult Submodule = (String, String)
 addSubmoduleOracle :: Rules (Submodule -> Action (String, String))
 addSubmoduleOracle = addOracle $ \(Submodule p) ->
     quietly $
-        (,)
-            <$> (fromStdout <$> command [Cwd p] "git" ["rev-parse", "HEAD"])
-            <*> (fromStdout <$> command [Cwd p] "git" ["diff"])
+        curry (both fromStdout)
+            <$> command [Cwd p] "git" ["rev-parse", "HEAD"]
+            <*> command [Cwd p] "git" ["diff"]
 
 runReadS :: [(a, b)] -> Maybe a
 runReadS = \case
