@@ -82,6 +82,12 @@ main :: IO ()
 main = shakeArgs shakeOpts do
     want [rootHtml]
 
+    mediaFiles <- liftIO $ map (mediaDir </>) <$> listDirectory mediaDir
+    want $ map (outDir </>) mediaFiles
+    (outDir </> mediaDir </> "*") *%> \dest (f :! EmptyList) -> do
+        liftIO $ createDirectoryIfMissing True $ outDir </> mediaDir
+        copyFileChanged (mediaDir </> f) dest
+
     getSubmoduleState <- addSubmoduleOracle
 
     "release" ~> do
@@ -298,6 +304,8 @@ inDir :: FilePath
 inDir = "./content"
 outDir :: FilePath
 outDir = "./dist"
+mediaDir :: FilePath
+mediaDir = "media"
 rootHtml :: FilePath
 rootHtml = outDir </> "index.html"
 stylesheet :: FilePath
