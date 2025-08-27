@@ -365,7 +365,6 @@ addCommonHtml noDep body = do
     links =
         [ ("posts", "Blog")
         , ("portfolio", "Portfolio")
-        , ("work", "Hire me!")
         ]
 
 -- TODO do this in Haskell, e.g. with `JuicyPixels-extra`?
