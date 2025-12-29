@@ -193,7 +193,9 @@ main = shakeArgs shakeOpts do
                                         <$> if takeExtension (T.unpack url) == ".md"
                                             then do
                                                 tell [outDir </> htmlInToOut url']
-                                                pure $ T.pack $ htmlInToOut' url'
+                                                -- TODO prepending slash won't be enough for nested paths,
+                                                -- but it fixes things for bits-and-bobs, which is the only use for now
+                                                pure $ T.pack $ '/' : htmlInToOut' url'
                                             else
                                                 pure url
                                 x -> pure x
@@ -376,6 +378,7 @@ addCommonHtml noDep body = do
     links =
         [ ("posts", "Blog")
         , ("portfolio", "Portfolio")
+        , ("misc", "Misc")
         ]
 
 -- TODO do this in Haskell, e.g. with `JuicyPixels-extra`?
