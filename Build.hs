@@ -90,6 +90,8 @@ main = shakeArgs shakeOpts do
 
     getSubmoduleState <- addSubmoduleOracle
 
+    "serve" ~> command_ [] "live-server" ["dist", "--open"]
+
     -- TODO requires one-time setup on each dev machine:
     -- git remote add github.io git@github.com:georgefst/georgefst.github.io.git
     -- git branch --no-track release github.io/georgefst.com
