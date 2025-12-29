@@ -145,12 +145,13 @@ main = shakeArgs shakeOpts do
 
     (outDir </> "monpad.html") %> \_ -> do
         _ <- getSubmoduleState $ Submodule "monpad"
+        -- TODO we may wish to return to calling `./build.sh` once that works on NixOS
         command_
             [Cwd "monpad"]
-            "./build.sh"
-            []
+            "nix"
+            ["build", ".#monpad:exe:monpad"]
         need $ Map.keys monpadLayouts <&> \layout -> monpadLayoutDir </> layout <.> "dhall"
-        command_ [] "./monpad/dist/monpad" $
+        command_ [] "./monpad/result/bin/monpad" $
             [ "dump-html"
             , "--no-ws"
             , "--login"
