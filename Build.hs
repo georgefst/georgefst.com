@@ -80,7 +80,6 @@ import Text.Pandoc.Walk
 
 main :: IO ()
 main = shakeArgs shakeOpts do
-
     mediaFiles <- liftIO $ map (mediaDir </>) <$> listDirectory mediaDir
     (outDir </> mediaDir </> "*") *%> \dest (f :! EmptyList) -> do
         liftIO $ createDirectoryIfMissing True $ outDir </> mediaDir
